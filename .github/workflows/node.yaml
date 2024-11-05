@@ -6,19 +6,24 @@ on:
       - master
   pull_request:
     branches:
-      - "**"
+      - '**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn 
+      - name: Install Yarn
+        run: npm install -g yarn
+      - run: yarn
       - run: yarn build
+      - name: Uninstall Yarn
+        if: always()
+        run: npm uninstall -g yarn

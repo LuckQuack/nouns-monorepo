@@ -1,12 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0
 
+/// @title Interface for Noun Auction Houses
+
+/*********************************
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░██░░░████░░██░░░████░░░ *
+ * ░░██████░░░████████░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ *********************************/
+
 pragma solidity ^0.8.6;
 
-import { INounsERC721 } from './INounsERC721.sol';
-
-/**
- * @title Interface for Noun Auction Houses
- */
 interface INounsAuctionHouse {
     struct Auction {
         // ID for the Noun (ERC721 token ID)
@@ -23,9 +33,9 @@ interface INounsAuctionHouse {
         bool settled;
     }
 
-    event AuctionCreated(uint256 indexed nounId);
+    event AuctionCreated(uint256 indexed nounId, uint256 startTime, uint256 endTime);
 
-    event AuctionBid(uint256 indexed nounId, address sender, uint256 value, bool firstBid, bool extended);
+    event AuctionBid(uint256 indexed nounId, address sender, uint256 value, bool extended);
 
     event AuctionExtended(uint256 indexed nounId, uint256 endTime);
 
@@ -52,4 +62,16 @@ interface INounsAuctionHouse {
     function setReservePrice(uint256 reservePrice) external;
 
     function setMinBidIncrementPercentage(uint8 minBidIncrementPercentage) external;
+
+    function auction()
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            address payable,
+            bool
+        );
 }

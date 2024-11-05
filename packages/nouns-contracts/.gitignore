@@ -1,9 +1,10 @@
 node_modules
+parts.html
 
 #Hardhat files
 cache
 artifacts
-typechain/**
+typechain
 .openzeppelin
 
 # Script output
@@ -12,3 +13,15 @@ logs
 # Coverage result files
 coverage/
 coverage.json
+
+abi/@openzeppelin
+abi/contracts/base
+abi/contracts/external
+abi/contracts/governance
+abi/contracts/interfaces
+abi/contracts/proxies
+abi/contracts/test
+
+# Foundry
+foundry-out
+foundry-cache

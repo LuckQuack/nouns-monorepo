@@ -1,12 +1,24 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: GPL-3.0
+
+/// @title Interface for NounsSeeder
+
+/*********************************
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░██░░░████░░██░░░████░░░ *
+ * ░░██████░░░████████░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ *********************************/
 
 pragma solidity ^0.8.6;
 
-import { INounsDescriptor } from './INounsDescriptor.sol';
+import { INounsDescriptorMinimal } from './INounsDescriptorMinimal.sol';
 
-/**
- * @title Interface for NounsSeeder.
- */
 interface INounsSeeder {
     struct Seed {
         uint48 background;
@@ -16,5 +28,5 @@ interface INounsSeeder {
         uint48 glasses;
     }
 
-    function generateSeed(uint256 nounId, INounsDescriptor descriptor) external view returns (Seed memory);
+    function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor) external view returns (Seed memory);
 }

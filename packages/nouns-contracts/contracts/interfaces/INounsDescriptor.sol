@@ -1,13 +1,32 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: GPL-3.0
+
+/// @title Interface for NounsDescriptor
+
+/*********************************
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░██░░░████░░██░░░████░░░ *
+ * ░░██████░░░████████░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ *********************************/
 
 pragma solidity ^0.8.6;
 
 import { INounsSeeder } from './INounsSeeder.sol';
+import { INounsDescriptorMinimal } from './INounsDescriptorMinimal.sol';
 
-/**
- * @title Interface for NounsDescriptor.
- */
-interface INounsDescriptor {
+interface INounsDescriptor is INounsDescriptorMinimal {
+    event PartsLocked();
+
+    event DataURIToggled(bool enabled);
+
+    event BaseURIUpdated(string baseURI);
+
     function arePartsLocked() external returns (bool);
 
     function isDataURIEnabled() external returns (bool);
@@ -26,15 +45,15 @@ interface INounsDescriptor {
 
     function glasses(uint256 index) external view returns (bytes memory);
 
-    function backgroundCount() external view returns (uint256);
+    function backgroundCount() external view override returns (uint256);
 
-    function bodyCount() external view returns (uint256);
+    function bodyCount() external view override returns (uint256);
 
-    function accessoryCount() external view returns (uint256);
+    function accessoryCount() external view override returns (uint256);
 
-    function headCount() external view returns (uint256);
+    function headCount() external view override returns (uint256);
 
-    function glassesCount() external view returns (uint256);
+    function glassesCount() external view override returns (uint256);
 
     function addManyColorsToPalette(uint8 paletteIndex, string[] calldata newColors) external;
 
@@ -62,11 +81,19 @@ interface INounsDescriptor {
 
     function lockParts() external;
 
-    function setDataURIEnabled(bool isDataURIEnabled) external;
+    function toggleDataURIEnabled() external;
 
     function setBaseURI(string calldata baseURI) external;
 
-    function tokenURI(uint256 tokenId, INounsSeeder.Seed memory seed) external view returns (string memory);
+    function tokenURI(uint256 tokenId, INounsSeeder.Seed memory seed) external view override returns (string memory);
 
-    function dataURI(uint256 tokenId, INounsSeeder.Seed memory seed) external view returns (string memory);
+    function dataURI(uint256 tokenId, INounsSeeder.Seed memory seed) external view override returns (string memory);
+
+    function genericDataURI(
+        string calldata name,
+        string calldata description,
+        INounsSeeder.Seed memory seed
+    ) external view returns (string memory);
+
+    function generateSVGImage(INounsSeeder.Seed memory seed) external view returns (string memory);
 }

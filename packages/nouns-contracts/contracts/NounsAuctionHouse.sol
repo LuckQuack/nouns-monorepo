@@ -1,5 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0
 
+/// @title The Nouns DAO auction house
+
+/*********************************
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░██░░░████░░██░░░████░░░ *
+ * ░░██████░░░████████░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░██░░██░░░████░░██░░░████░░░ *
+ * ░░░░░░█████████░░█████████░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
+ *********************************/
+
+// LICENSE
+// NounsAuctionHouse.sol is a modified version of Zora's AuctionHouse.sol:
+// https://github.com/ourzora/auction-house/blob/54a12ec1a6cf562e49f0a4917990474b11350a2d/contracts/AuctionHouse.sol
+//
+// AuctionHouse.sol source code Copyright Zora licensed under the GPL-3.0 license.
+// With modifications by Nounders DAO.
+
 pragma solidity ^0.8.6;
 
 import { PausableUpgradeable } from '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
@@ -7,15 +29,12 @@ import { ReentrancyGuardUpgradeable } from '@openzeppelin/contracts-upgradeable/
 import { OwnableUpgradeable } from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import { INounsAuctionHouse } from './interfaces/INounsAuctionHouse.sol';
-import { INounsERC721 } from './interfaces/INounsERC721.sol';
+import { INounsToken } from './interfaces/INounsToken.sol';
 import { IWETH } from './interfaces/IWETH.sol';
 
-/**
- * @title The NounsDAO auction house
- */
 contract NounsAuctionHouse is INounsAuctionHouse, PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     // The Nouns ERC721 token contract
-    INounsERC721 public nouns;
+    INounsToken public nouns;
 
     // The address of the WETH contract
     address public weth;
@@ -41,7 +60,7 @@ contract NounsAuctionHouse is INounsAuctionHouse, PausableUpgradeable, Reentranc
      * @dev This function can only be called once.
      */
     function initialize(
-        INounsERC721 _nouns,
+        INounsToken _nouns,
         address _weth,
         uint256 _timeBuffer,
         uint256 _reservePrice,
@@ -109,13 +128,7 @@ contract NounsAuctionHouse is INounsAuctionHouse, PausableUpgradeable, Reentranc
             auction.endTime = _auction.endTime = block.timestamp + timeBuffer;
         }
 
-        emit AuctionBid(
-            _auction.nounId,
-            msg.sender,
-            msg.value,
-            lastBidder == address(0), // firstBid boolean
-            extended
-        );
+        emit AuctionBid(_auction.nounId, msg.sender, msg.value, extended);
 
         if (extended) {
             emit AuctionExtended(_auction.nounId, _auction.endTime);
@@ -183,17 +196,20 @@ contract NounsAuctionHouse is INounsAuctionHouse, PausableUpgradeable, Reentranc
      */
     function _createAuction() internal {
         try nouns.mint() returns (uint256 nounId) {
+            uint256 startTime = block.timestamp;
+            uint256 endTime = startTime + duration;
+
             auction = Auction({
                 nounId: nounId,
                 amount: 0,
-                startTime: block.timestamp,
-                endTime: block.timestamp + duration,
+                startTime: startTime,
+                endTime: endTime,
                 bidder: payable(0),
                 settled: false
             });
 
-            emit AuctionCreated(nounId);
-        } catch {
+            emit AuctionCreated(nounId, startTime, endTime);
+        } catch Error(string memory) {
             _pause();
         }
     }
@@ -236,9 +252,10 @@ contract NounsAuctionHouse is INounsAuctionHouse, PausableUpgradeable, Reentranc
 
     /**
      * @notice Transfer ETH and return the success status.
+     * @dev This function only forwards 30,000 gas to the callee.
      */
     function _safeTransferETH(address to, uint256 value) internal returns (bool) {
-        (bool success, ) = to.call{ value: value }(new bytes(0));
+        (bool success, ) = to.call{ value: value, gas: 30_000 }(new bytes(0));
         return success;
     }
 }
